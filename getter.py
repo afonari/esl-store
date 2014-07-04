@@ -135,7 +135,7 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
             print 'WARNING: Cannot interface product with itself!'
             continue
         #
-        cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
+        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (val,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
@@ -163,14 +163,14 @@ def check_tags(yaml_obj, tags_key, cur, title):
         if val is None or len(val) == 0:
             continue
         #
-        cur.execute( 'SELECT * FROM tags WHERE title=?', (val,) )
+        cur.execute( 'SELECT * FROM tags WHERE title=? COLLATE NOCASE', (val,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
             print 'WARNING: No tag (%s) found in the "tags" table!' % val
             continue
         #
-        cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
+        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (val,) )
         rows = cur.fetchall()
         #
         cur.execute('INSERT INTO products_tags VALUES(?,?)', (title, val))
@@ -293,7 +293,7 @@ if __name__ == "__main__":
             continue
         #
         title = tmp[0]
-        cur.execute( 'SELECT * FROM products WHERE title=?', (title,) )
+        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (title,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
@@ -355,7 +355,7 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ? COLLATE NOCASE', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
         con.commit()
         #
         print md_str
