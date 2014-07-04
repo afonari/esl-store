@@ -9,6 +9,6 @@ version: '2.0'
 release_date: '14-04-2011'
 license: GPL
 interfaced_with: ['quantum-espresso']
-tags: ['Wannier functions', 'Postprocessing', 'Localized Orbitals']
+tags: ['Wannier functions', 'Postprocessing', 'Localized Orbitals', 'Package']
 ~~##~~
 *wannier90* computes maximally-localised Wannier functions (MLWF) following the method of Marzari and Vanderbilt (MV).
