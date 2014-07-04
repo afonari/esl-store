@@ -3,8 +3,8 @@
 #
 title: Quantum-ESPRESSO
 homepage: http://quantum-espresso.org/
-latest_download: ['espresso_v_205.tar.gz', '']
-logo_url: http://test
+latest_download: ['espresso_v_205.tar.gz', 'http://test.com']
+logo_url: http://test.com
 version: 5.0.1
 release_date: 22-04-1988
 license: BSD

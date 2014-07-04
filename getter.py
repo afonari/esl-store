@@ -58,6 +58,10 @@ def check_url(url_str):
     import httplib
     import urllib2
     #
+    if url_str is None:
+        print 'WARNING: url_str is None!'
+        return 1, 0
+    #
     request = urllib2.Request(url_str)
     #
     try:
@@ -70,6 +74,9 @@ def check_url(url_str):
         return 1, 0
     except httplib.HTTPException, e:
         print 'WARNING: HTTPException!'
+        return 1, 0
+    except ValueError:
+        print "WARNING: Couldn't parse the URL!"
         return 1, 0
     except Exception:
         import traceback
@@ -106,11 +113,12 @@ def check_latest_download(yaml_obj, latest_download_key):
         print "WARNING: latest_download title (1st index) is empty!"
         return 1, 0
     #
-    ierr, download_fh = check_url(homepage_url)
+    ierr, download_fh = check_url(latest_download[1])
     if ierr == 1:
         return 1, 0
     #
-    return 0, homepage_url
+    return 0, latest_download
+#
 ##########################
 if __name__ == "__main__":
     import sys
@@ -173,8 +181,9 @@ if __name__ == "__main__":
             print "Next entry!"
             continue
         #
-        if not 'latest_download' in yaml_obj.keys() or len(yaml_obj['latest_download']) < 2:
-            print "latest_download empty or incomplete, next entry!"
+        ierr, latest_download = check_latest_download(yaml_obj, 'latest_download')
+        if ierr == 1:
+            print "Next entry!"
             continue
         #
         if not 'logo_url' in yaml_obj.keys() or len(yaml_obj['logo_url']) == 0:
