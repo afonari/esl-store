@@ -119,7 +119,7 @@ def check_latest_download(yaml_obj, latest_download_key):
     #
     return 0, latest_download
 #
-def check_interfaced(yaml_obj, interfaced_with_key):
+def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
     #
     if not latest_download_key in yaml_obj.keys():
         print "WARNING: %s is non-existent!" % interfaced_with_key
@@ -131,7 +131,25 @@ def check_interfaced(yaml_obj, interfaced_with_key):
         return 1
     #
     for val in interfaced_with:
-        print val
+        if val is None or len(val) == 0:
+            continue
+        #
+        if val == title:
+            print 'WARNING: Cannot interface product with itself!'
+            continue
+        #
+        cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
+        rows = cur.fetchall()
+        #
+        if len(rows) == 0:
+            print 'WARNING: No product with the title: %s found in the DB for interfacing!' % title
+            continue
+        #
+        cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
+    #
+    return 0
+
+#
 ##########################
 if __name__ == "__main__":
     import sys
@@ -215,6 +233,8 @@ if __name__ == "__main__":
         if not 'license' in yaml_obj.keys() or len(yaml_obj['license']) == 0:
             print "license empty, next entry!"
             continue
+        #
+        check_interfaced(yaml_obj, 'interfaced_with', cur, title)
         #
         #
         # Ready to update!
