@@ -3,7 +3,7 @@
 #
 title: Quantum-ESPRESSO
 homepage: http://quantum-espresso.org/
-latest_download: ['espresso_v_205.tar.gz', 'http://quantum-espresso.org/targz']
+latest_download: ['espresso_v_205.tar.gz', '']
 logo_url: http://test
 version: 5.0.1
 release_date: 22-04-1988

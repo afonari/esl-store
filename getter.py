@@ -78,6 +78,39 @@ def check_url(url_str):
     #
     return 0, url_fh
 #
+def check_homepage(yaml_obj, homepage_key):
+    #
+    if not homepage_key in yaml_obj.keys():
+        print "WARNING: %s is non-existent!" % homepage_key
+        return 1, 0
+    #
+    homepage_url = yaml_obj[homepage_key]
+    ierr, homepage_fh = check_url(homepage_url)
+    if ierr == 1:
+        return 1, 0
+    #
+    return 0, homepage_url
+#
+def check_latest_download(yaml_obj, latest_download_key):
+    #
+    if not latest_download_key in yaml_obj.keys():
+        print "WARNING: %s is non-existent!" % latest_download_key
+        return 1, 0
+    #
+    latest_download = yaml_obj[latest_download_key]
+    if not isinstance(latest_download, list):
+        print "WARNING: %s is non a list of 2 entries!" % latest_download
+        return 1, 0
+    #
+    if len(latest_download[0]) == 0:
+        print "WARNING: latest_download title (1st index) is empty!"
+        return 1, 0
+    #
+    ierr, download_fh = check_url(homepage_url)
+    if ierr == 1:
+        return 1, 0
+    #
+    return 0, homepage_url
 ##########################
 if __name__ == "__main__":
     import sys
@@ -130,16 +163,14 @@ if __name__ == "__main__":
         #
         print yaml_obj
         if not 'title' in yaml_obj.keys() or yaml_obj['title'] != title:
-            print "WARNING title nonexistent or not the same as in ESLs file!"
+            print "WARNING: title nonexistent or not the same as in ESLs file, next entry!"
             continue
         #
         #   Checking other entries
         #
-        ierr, homepage_fh = check_url(tmp[1])
+        ierr, homepage_url = check_homepage(yaml_obj, 'homepage')
         if ierr == 1:
             print "Next entry!"
-        if not 'homepage' in yaml_obj.keys() or len(yaml_obj['homepage']) == 0:
-            print "homepage empty, next entry!"
             continue
         #
         if not 'latest_download' in yaml_obj.keys() or len(yaml_obj['latest_download']) < 2:
@@ -166,7 +197,7 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
+        cur.execute('UPDATE products SET homepage = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
         con.commit()
         print md_str
         print rows
