@@ -303,6 +303,7 @@ if __name__ == "__main__":
         ierr, esl_fh = check_url(tmp[1], keep_fh=True)
         if ierr == 1:
             print "Next entry!"
+            continue
         #
         print "Parsing YAML and Markdown..."
         ierr, yaml_obj, md_str = parse_esl_file(esl_fh)

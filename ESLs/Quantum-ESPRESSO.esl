@@ -5,7 +5,7 @@ title: Quantum-ESPRESSO
 homepage: http://quantum-espresso.org/
 latest_download: ['espresso-5.1.tar.gz', 'http://qe-forge.org/gf/download/frsrelease/151/581/espresso-5.1.tar.gz']
 logo_url: 'http://afonari.com/esl-store/ESLs-logos/Quantum_espresso_logo.jpg'
-version: 5.1
+version: '5.1'
 release_date: 2014-04-04
 license: BSD
 interfaced_with: [wannier90, BerkeleyGW]

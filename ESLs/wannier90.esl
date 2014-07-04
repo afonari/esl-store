@@ -1,11 +1,11 @@
-#
-#
+# This part of document till the ~~##~~ is considered YAML compliant (yaml.org)
+# Pound at the beginning of the line is considered a comment
 #
 title: Wannier
 homepage: http://wannier90.org/
 latest_download: ['wannier_v_205.tar.gz', 'http://wannier.org/targz']
 logo_url: http://wannier.com
-version: 1.8
+version: '1.8'
 release_date: 22-04-2011
 license: MIT
 interfaced_with: [quantum-espresso, BerkeleyGW]
