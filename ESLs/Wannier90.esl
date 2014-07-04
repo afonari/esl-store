@@ -2,7 +2,7 @@
 # Pound at the beginning of the line is considered a comment
 #
 title: Wannier90
-homepage: http://wannier90.org/
+homepage: http://wannier.org/
 latest_download: ['wannier_v_205.tar.gz', 'http://wannier.org/targz']
 logo_url: http://wannier.com
 version: '1.8'
