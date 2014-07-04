@@ -1,4 +1,4 @@
-# This part of document till the ~~##~~ is considered YAML compliant (yaml.org)
+# This part of document till the separator is considered YAML compliant (yaml.org)
 # Pound at the beginning of the line is considered a comment
 #
 title: Wannier90

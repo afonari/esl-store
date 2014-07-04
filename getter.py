@@ -19,6 +19,7 @@ def parse_esl_file(esl_fh):
         if not line:
             break
         #
+        print line
         if "~~##~~" in line:
             yaml_done = True
             continue
@@ -30,6 +31,7 @@ def parse_esl_file(esl_fh):
     #
     md = markdown.markdown(markdown_str, safe_mode='remove')
     #
+    print yaml_str
     try:
         yaml_obj = yaml.load(yaml_str)
     except yaml.YAMLError, exc:
@@ -47,7 +49,7 @@ def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     #
     date_str = yaml_obj[release_date_key]
     try:
-        ret = datetime.datetime.strptime(date_str, date_formatter_str).date()
+        ret = datetime.datetime.strptime(date_str, date_formatter_str)
     except ValueError:
         print "WARNING: Couldn't parse the date in date_str: %s!" % date_str
         return 1, 0
@@ -155,7 +157,7 @@ def check_tags(yaml_obj, tags_key, cur, title):
         print "WARNING: %s is not a list!" % tags_key
         return 1
     #
-    cur.execute('DELETE FROM products_tags WHERE product_title = ?', (title))
+    cur.execute('DELETE FROM products_tags WHERE product_title = ?', (title,))
     #
     for val in tags:
         if val is None or len(val) == 0:
@@ -305,6 +307,7 @@ if __name__ == "__main__":
             print "Next entry!"
             continue
         #
+        print esl_fh
         print "Parsing YAML and Markdown..."
         ierr, yaml_obj, md_str = parse_esl_file(esl_fh)
         #
@@ -326,11 +329,6 @@ if __name__ == "__main__":
             print "Next entry!"
             continue
         #
-        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title)
-        if ierr == 1:
-            print "Next entry!"
-            continue
-        #
         ierr, version = check_version(yaml_obj, 'version')
         if ierr == 1:
             print "Next entry!"
@@ -347,19 +345,22 @@ if __name__ == "__main__":
             continue
         #
         check_interfaced(yaml_obj, 'interfaced_with', cur, title)
-        con.commit()
 
         check_tags(yaml_obj, 'tags', cur, title)
-        con.commit()
         #
+        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title)
+        if ierr == 1:
+            print "Next entry!"
+            continue
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
         con.commit()
+        #
         print md_str
         print rows
-
+        #
 
 
 
