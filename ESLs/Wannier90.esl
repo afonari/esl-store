@@ -3,11 +3,12 @@
 #
 title: Wannier90
 homepage: http://wannier.org/
-latest_download: ['wannier_v_205.tar.gz', 'http://wannier.org/targz']
+latest_download: ['wannier90-2.0.0.tar.gz', 'http://www.wannier.org/code/wannier90-2.0.0.tar.gz']
 logo_url: http://wannier.com
-version: '1.8'
-release_date: 22-04-2011
-license: MIT
-interfaced_with: [quantum-espresso, BerkeleyGW]
+version: '2.0'
+release_date: 14-04-2011
+license: GPL
+interfaced_with: ['quantum-espresso']
+tags: ['Wannier functions', 'Postprocessing', 'localize orbitals']
 ~~##~~
-Wannier90 is **COOL**!
+*wannier90* computes maximally-localised Wannier functions (MLWF) following the method of Marzari and Vanderbilt (MV).
