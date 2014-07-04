@@ -121,7 +121,7 @@ def check_latest_download(yaml_obj, latest_download_key):
 #
 def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
     #
-    if not latest_download_key in yaml_obj.keys():
+    if not interfaced_with_key in yaml_obj.keys():
         print "WARNING: %s is non-existent!" % interfaced_with_key
         return 1
     #
@@ -142,13 +142,28 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
         rows = cur.fetchall()
         #
         if len(rows) == 0:
-            print 'WARNING: No product with the title: %s found in the DB for interfacing!' % title
+            print 'WARNING: No product with the title: %s found in the DB for interfacing!' % val
             continue
         #
         cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
     #
     return 0
-
+#
+def check_version(yaml_obj, version_key):
+    #
+    if (version_key not in yaml_obj.keys()) or (yaml_obj[version_key] is None) or (len(yaml_obj[version_key])==0):
+        print "WARNING: %s is non-existent!" % version_key
+        return 1
+    else:
+        return 0, yaml_obj[version_key]
+#
+def check_license(yaml_obj, license_key):
+    #
+    if (license_key not in yaml_obj.keys()) or (yaml_obj[license_key] is None) or (len(yaml_obj[license_key])==0):
+        print "WARNING: %s is non-existent!" % license_key
+        return 1
+    else:
+        return 0, yaml_obj[license_key]
 #
 ##########################
 if __name__ == "__main__":
@@ -221,8 +236,9 @@ if __name__ == "__main__":
             print "logo_url empty or incomplete, next entry!"
             continue
         #
-        if not 'version' in yaml_obj.keys() or len(yaml_obj['version']) == 0:
-            print "version empty, next entry!"
+        ierr, version = check_version(yaml_obj, 'version')
+        if ierr == 1:
+            print "Next entry!"
             continue
         #
         ierr, release_date = check_release_date(yaml_obj, 'release_date', DATE_FORMATTER_STRING)
@@ -230,8 +246,9 @@ if __name__ == "__main__":
             print "Next entry!"
             continue
         #
-        if not 'license' in yaml_obj.keys() or len(yaml_obj['license']) == 0:
-            print "license empty, next entry!"
+        ierr, license = check_license(yaml_obj, 'license')
+        if ierr == 1:
+            print "Next entry!"
             continue
         #
         check_interfaced(yaml_obj, 'interfaced_with', cur, title)
