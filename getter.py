@@ -142,7 +142,10 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
             print 'WARNING: No product with the title: %s found in the DB for interfacing!' % val
             continue
         #
-        cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
+        cur.execute('SELECT rowid FROM interface WHERE product = ? and product1 = ?', (title, val))
+        rows = cur.fetchall()
+        if len(rows) == 0:
+            cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
     #
     return 0
 #

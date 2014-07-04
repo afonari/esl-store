@@ -1,0 +1,28 @@
+div.tag{
+    float:left;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid;
+    margin:5px;
+    padding:3px;
+}
+div.tag_current{
+    float:left;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid;
+    margin:5px;
+    padding:3px;
+}
+
+body {
+  line-height: 0.7 em;
+  font-size: 110%;
+  text-align: justify;
+  width: 55em;
+  margin: 3em auto 2em 5em;
+  line-height: 1.5em;
+}
+.clearBoth { clear:both; }
