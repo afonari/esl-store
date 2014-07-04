@@ -2,6 +2,8 @@
 
 VERSION = '0.1'
 ESL_FILE = '_esl.list'
+DATE_FORMATTER_STRING = "%d-%m-%y"
+
 ##########################
 def parse_esl_file(esl_fh):
     import markdown
@@ -27,7 +29,23 @@ def parse_esl_file(esl_fh):
     #
     md = markdown.markdown(markdown_str, safe_mode='remove')
     return yaml_str, md
-
+#
+def check_release_date(yaml_obj, release_date_key, date_formatter_str, ret):
+    import datetime
+    #
+    if not release_date_key in yaml_obj.keys():
+        print "WARNING: %s is non-existent!" % release_date_key
+        return 1
+    #
+    date_str = yaml_obj[release_date_key]
+    try:
+        ret = datetime.datetime.strptime(date_str, date_formatter_str)
+    except ValueError:
+        print "WARNING: Couldn't parse the date in date_str: %s!" % date_str
+        return 1
+    #
+    return 0
+    #
 ##########################
 if __name__ == "__main__":
     import sys
@@ -118,8 +136,9 @@ if __name__ == "__main__":
             print "version empty, next entry!"
             continue
         #
-        if not 'release_date' in yaml_obj.keys() or len(yaml_obj['release_date']) == 0:
-            print "release_date empty, next entry!"
+        release_date = 0
+        if check_release_date(yaml_obj, 'release_date', DATE_FORMATTER_STRING, release_date) == 1:
+            print "Next entry!"
             continue
         #
         if not 'license' in yaml_obj.keys() or len(yaml_obj['license']) == 0:
@@ -129,7 +148,8 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cursor.execute('UPDATE products SET homepage = ?, latest_download = ?, logo_url = ?, version = ?, release_date = ?, license = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['latest_download'], yaml_obj['logo_url'], yaml_obj['version'], yaml_obj['release_date'], yaml_obj['license'], yaml_obj['title']))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['latest_download'], yaml_obj['version'], yaml_obj['release_date'], yaml_obj['license'], md_str, yaml_obj['title']))
+        cur.commit()
         print md_str
         print rows
 

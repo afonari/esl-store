@@ -6,7 +6,7 @@ homepage: http://quantum-espresso.org/
 latest_download: ['espresso_v_205.tar.gz', 'http://quantum-espresso.org/targz']
 logo_url: http://test
 version: 5.0.1
-release_date: 05-22-1988
+release_date: 22-04-1988
 license: BSD
 ~~##~~
 QUANTUM Espresso is a plane wave package:
