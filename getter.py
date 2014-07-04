@@ -206,7 +206,7 @@ if __name__ == "__main__":
             print 'WARNING: No product with the title: %s found in the DB, next entry!' % title
             continue
         #
-        print "Getting URL %s " % tmp[1]
+        print "Getting data for %s product from URL %s " % (title, tmp[1])
         #
         ierr, esl_fh = check_url(tmp[1])
         if ierr == 1:
