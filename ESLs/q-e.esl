@@ -9,4 +9,7 @@ version: 5.0.1
 release_date: 05-22-1988
 license: BSD
 ~~##~~
-QUANTUM Espresso is a plane wave package
+QUANTUM Espresso is a plane wave package:
+ - Test
+ - Test
+ - Test
