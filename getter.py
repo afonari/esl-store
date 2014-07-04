@@ -54,37 +54,32 @@ def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     #
     return 0, ret
 #
-def check_url(url_str):
-    import httplib
-    import urllib2
-    #
-    if url_str is None:
-        print 'WARNING: url_str is None!'
-        return 1, 0
-    #
-    request = urllib2.Request(url_str)
+def check_url(url, download=False, local_name='', keep_fh=False):
+    from urllib2 import urlopen, URLError, HTTPError
+    import os
     #
     try:
-        url_fh = urllib2.urlopen(request)
-    except urllib2.HTTPError, e:
-        print 'WARNING: HTTPError = %s!' % str(e.code)
-        return 1, 0
-    except urllib2.URLError, e:
-        print 'WARNING: URLError = %s!' % str(e.reason)
-        return 1, 0
-    except httplib.HTTPException, e:
-        print 'WARNING: HTTPException!'
-        return 1, 0
-    except ValueError:
-        print "WARNING: Couldn't parse the URL: %s!" % url_str
-        return 1, 0
-    except Exception:
-        import traceback
-        print 'generic exception: %s, next entry!' % traceback.format_exc()
-        return
+        f = urlopen(url)
+        #
+        # Open our local file for writing
+        if download == True:
+            with open(local_name, "wb") as local_file:
+                local_file.write(f.read())
     #
-    return 0, url_fh
+    #handle errors
+    except HTTPError, e:
+        print "WARNING: HTTP Error:", e.code, url
+        if keep_fh: return 1, 0
+        else: return 1
+    except URLError, e:
+        print "WARNING: URL Error:", e.reason, url
+        if keep_fh: return 1, 0
+        else: return 1
+    #
+    if keep_fh: return 0, f
+    else: return 0
 #
+
 def check_homepage(yaml_obj, homepage_key):
     #
     if not homepage_key in yaml_obj.keys():
@@ -92,7 +87,7 @@ def check_homepage(yaml_obj, homepage_key):
         return 1, 0
     #
     homepage_url = yaml_obj[homepage_key]
-    ierr, homepage_fh = check_url(homepage_url)
+    ierr = check_url(homepage_url)
     if ierr == 1:
         return 1, 0
     #
@@ -106,14 +101,14 @@ def check_latest_download(yaml_obj, latest_download_key):
     #
     latest_download = yaml_obj[latest_download_key]
     if not isinstance(latest_download, list):
-        print "WARNING: %s is non a list of 2 entries!" % latest_download
+        print "WARNING: %s is not a list!" % latest_download
         return 1, 0
     #
     if len(latest_download[0]) == 0:
         print "WARNING: latest_download title (1st index) is empty!"
         return 1, 0
     #
-    ierr, download_fh = check_url(latest_download[1])
+    ierr = check_url(latest_download[1])
     if ierr == 1:
         return 1, 0
     #
@@ -165,6 +160,25 @@ def check_license(yaml_obj, license_key):
     else:
         return 0, yaml_obj[license_key]
 #
+def check_logo(yaml_obj, logo_key, path_to_save):
+    import imghdr
+    #
+    if (logo_key not in yaml_obj.keys()) or (yaml_obj[logo_key] is None) or (len(yaml_obj[logo_key])==0):
+        print "WARNING: %s is non-existent!" % logo_key
+        return 1, 0
+    #
+    logo_url = yaml_obj[logo_key]
+    ierr, logo_fh = check_url(logo_url, keep_fh=True)
+    if ierr == 1:
+        return 1
+    #
+    logo_type = imghdr.what('', h=logo_fh.read())
+    if (logo_type is not 'png') or (logo_type is not 'gif'):
+        print "WARNING: Logo should be png or jpg!"
+        return 1
+    #
+    return 0
+    #
 ##########################
 if __name__ == "__main__":
     import sys
@@ -208,19 +222,20 @@ if __name__ == "__main__":
         #
         print "Getting data for %s product from URL %s " % (title, tmp[1])
         #
-        ierr, esl_fh = check_url(tmp[1])
+        ierr, esl_fh = check_url(tmp[1], keep_fh=True)
         if ierr == 1:
             print "Next entry!"
         #
-        print "Parsing..."
+        print "Parsing YAML and Markdown..."
         ierr, yaml_obj, md_str = parse_esl_file(esl_fh)
         #
         print yaml_obj
-        if not 'title' in yaml_obj.keys() or yaml_obj['title'] != title:
+        #
+        if ('title' not in yaml_obj.keys()) or (yaml_obj['title'] != title):
             print "WARNING: title nonexistent or not the same as in ESLs file, next entry!"
             continue
         #
-        #   Checking other entries
+        #   Checking other product attributes
         #
         ierr, homepage_url = check_homepage(yaml_obj, 'homepage')
         if ierr == 1:
@@ -232,8 +247,9 @@ if __name__ == "__main__":
             print "Next entry!"
             continue
         #
-        if not 'logo_url' in yaml_obj.keys() or len(yaml_obj['logo_url']) == 0:
-            print "logo_url empty or incomplete, next entry!"
+        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title)
+        if ierr == 1:
+            print "Next entry!"
             continue
         #
         ierr, version = check_version(yaml_obj, 'version')
