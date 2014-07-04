@@ -6,7 +6,7 @@ homepage: http://quantum-espresso.org/
 latest_download: ['espresso-5.1.tar.gz', 'http://qe-forge.org/gf/download/frsrelease/151/581/espresso-5.1.tar.gz']
 logo_url: 'http://afonari.com/esl-store/ESLs-logos/Quantum_espresso_logo.jpg'
 version: '5.1'
-release_date: 04-04-2014
+release_date: '04-04-2014'
 license: BSD
 interfaced_with: [wannier90, BerkeleyGW]
 tags: ['Plane Waves', 'Density Functional Theory', 'Ab Initio', 'Molecular Dynamics', 'Package']
