@@ -122,7 +122,7 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
     #
     interfaced_with = yaml_obj[interfaced_with_key]
     if not isinstance(interfaced_with, list):
-        print "WARNING: %s is non a list!" % interfaced_with_key
+        print "WARNING: %s is not a list!" % interfaced_with_key
         return 1
     #
     for val in interfaced_with:
@@ -144,6 +144,36 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
     #
     return 0
 #
+def check_tags(yaml_obj, tags_key, cur, title):
+    #
+    if not tags_key in yaml_obj.keys():
+        print "WARNING: %s is non-existent!" % tags_key
+        return 1
+    #
+    tags = yaml_obj[tags_key]
+    if not isinstance(tags, list):
+        print "WARNING: %s is not a list!" % tags_key
+        return 1
+    #
+    cur.execute('DELETE FROM products_tags WHERE product_title = ?', (title))
+    #
+    for val in tags:
+        if val is None or len(val) == 0:
+            continue
+        #
+        cur.execute( 'SELECT * FROM tags WHERE title=?', (val,) )
+        rows = cur.fetchall()
+        #
+        if len(rows) == 0:
+            print 'WARNING: No tag (%s) found in the "tags" table!' % val
+            continue
+        #
+        cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
+        rows = cur.fetchall()
+        #
+        cur.execute('INSERT INTO products_tags VALUES(?,?)', (title, val))
+    #
+    return 0
 def check_version(yaml_obj, version_key):
     #
     if (version_key not in yaml_obj.keys()) or (yaml_obj[version_key] is None) or (len(yaml_obj[version_key])==0):
@@ -160,8 +190,43 @@ def check_license(yaml_obj, license_key):
     else:
         return 0, yaml_obj[license_key]
 #
-def check_logo(yaml_obj, logo_key, path_to_save):
+def get_image_size(fname):
+    import struct
     import imghdr
+    #
+    fhandle = open(fname, 'rb')
+    head = fhandle.read(24)
+    if len(head) != 24:
+        return 1, 0, 0, ''
+    if imghdr.what(fname) == 'png':
+        check = struct.unpack('>i', head[4:8])[0]
+        if check != 0x0d0a1a0a:
+            return 1, 0, 0, ''
+        width, height = struct.unpack('>ii', head[16:24])
+    elif imghdr.what(fname) == 'jpeg':
+        try:
+            fhandle.seek(0) # Read 0xff next
+            size = 2
+            ftype = 0
+            while not 0xc0 <= ftype <= 0xcf:
+                fhandle.seek(size, 1)
+                byte = fhandle.read(1)
+                while ord(byte) == 0xff:
+                    byte = fhandle.read(1)
+                ftype = ord(byte)
+                size = struct.unpack('>H', fhandle.read(2))[0] - 2
+            # We are at a SOFn block
+            fhandle.seek(1, 1)  # Skip `precision' byte.
+            height, width = struct.unpack('>HH', fhandle.read(4))
+        except Exception: #IGNORE:W0703
+            return 1, 0, 0, ''
+    else:
+        return 1, 0, 0, ''
+    fhandle.close()
+    return 0, width, height, imghdr.what(fname)
+#
+def check_logo(yaml_obj, logo_key, path_to_save):
+    import os
     #
     if (logo_key not in yaml_obj.keys()) or (yaml_obj[logo_key] is None) or (len(yaml_obj[logo_key])==0):
         print "WARNING: %s is non-existent!" % logo_key
@@ -172,11 +237,24 @@ def check_logo(yaml_obj, logo_key, path_to_save):
     if ierr == 1:
         return 1
     #
-    logo_type = imghdr.what('', h=logo_fh.read())
-    if (logo_type is not 'png') or (logo_type is not 'gif'):
-        print "WARNING: Logo should be png or jpg!"
+    with open(path_to_save, "wb") as local_file:
+        local_file.write(logo_fh.read())
+    #
+    ierr, w, h, file_type = get_image_size(path_to_save)
+    #
+    if ierr == 1:
+        print "WARNING: Logo (%s) was not recognized to be of 'png' or 'jpeg' type" % logo_url
         return 1
     #
+    if not file_type in ['png', 'jpeg']:
+        print "WARNING: Logo is of type: %s; should be png or jpeg!" % file_type
+        return 1
+    #
+    if w > 200 or h > 100:
+        print "WARNING: Logo is too large (%f x %f) should be 200px X 100px max!" % (w, h)
+        return 1
+    #
+    os.rename(path_to_save, path_to_save+'.'+file_type)
     return 0
     #
 ##########################
@@ -268,6 +346,10 @@ if __name__ == "__main__":
             continue
         #
         check_interfaced(yaml_obj, 'interfaced_with', cur, title)
+        con.commit()
+
+        check_tags(yaml_obj, 'tags', cur, title)
+        con.commit()
         #
         #
         # Ready to update!
