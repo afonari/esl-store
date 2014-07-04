@@ -102,8 +102,8 @@ if __name__ == "__main__":
         #
         #   Checking other entries
         #
-        if not 'home_url' in yaml_obj.keys() or len(yaml_obj['home_url']) == 0:
-            print "home_url empty, next entry!"
+        if not 'homepage' in yaml_obj.keys() or len(yaml_obj['homepage']) == 0:
+            print "homepage empty, next entry!"
             continue
         #
         if not 'latest_download' in yaml_obj.keys() or len(yaml_obj['latest_download']) < 2:
@@ -126,7 +126,11 @@ if __name__ == "__main__":
             print "license empty, next entry!"
             continue
         #
-        print md
+        #
+        # Ready to update!
+        #
+        cursor.execute('UPDATE products SET homepage = ?, latest_download = ?, logo_url = ?, version = ?, release_date = ?, license = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['latest_download'], yaml_obj['logo_url'], yaml_obj['version'], yaml_obj['release_date'], yaml_obj['license'], yaml_obj['title']))
+        print md_str
         print rows
 
 

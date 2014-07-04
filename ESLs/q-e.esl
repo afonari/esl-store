@@ -2,7 +2,7 @@
 #
 #
 title: Quantum-ESPRESSO
-home_url: http://quantum-espresso.org/
+homepage: http://quantum-espresso.org/
 latest_download: ['espresso_v_205.tar.gz', 'http://quantum-espresso.org/targz']
 logo_url: http://test
 version: 5.0.1
