@@ -1,7 +1,7 @@
 # This part of document till the ~~##~~ is considered YAML compliant (yaml.org)
 # Pound at the beginning of the line is considered a comment
 #
-title: Wannier
+title: Wannier90
 homepage: http://wannier90.org/
 latest_download: ['wannier_v_205.tar.gz', 'http://wannier.org/targz']
 logo_url: http://wannier.com
