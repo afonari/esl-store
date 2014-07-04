@@ -3,10 +3,10 @@
 #
 title: Quantum-ESPRESSO
 homepage: http://quantum-espresso.org/
-latest_download: ['espresso_v_205.tar.gz', 'http://test.com']
-logo_url: 'http://www.quantum-espresso.org/wp-content/uploads/2011/12/Quantum_espresso_logo.jpg'
-version: 5.0.1
-release_date: 22-04-1988
+latest_download: ['espresso-5.1.tar.gz', 'http://qe-forge.org/gf/download/frsrelease/151/581/espresso-5.1.tar.gz']
+logo_url: 'http://afonari.com/esl-store/ESLs-logos/Quantum_espresso_logo.jpg'
+version: 5.1
+release_date: 2014-04-04
 license: BSD
 interfaced_with: [wannier90, BerkeleyGW]
 tags: ['Plane Waves', 'Density Functional Theory', 'Ab Initio', 'Molecular Dynamics', 'Package']
