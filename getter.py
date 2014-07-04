@@ -76,7 +76,7 @@ def check_url(url_str):
         print 'WARNING: HTTPException!'
         return 1, 0
     except ValueError:
-        print "WARNING: Couldn't parse the URL!"
+        print "WARNING: Couldn't parse the URL: %s!" % url_str
         return 1, 0
     except Exception:
         import traceback
@@ -119,6 +119,19 @@ def check_latest_download(yaml_obj, latest_download_key):
     #
     return 0, latest_download
 #
+def check_interfaced(yaml_obj, interfaced_with_key):
+    #
+    if not latest_download_key in yaml_obj.keys():
+        print "WARNING: %s is non-existent!" % interfaced_with_key
+        return 1
+    #
+    interfaced_with = yaml_obj[interfaced_with_key]
+    if not isinstance(interfaced_with, list):
+        print "WARNING: %s is non a list!" % interfaced_with_key
+        return 1
+    #
+    for val in interfaced_with:
+        print val
 ##########################
 if __name__ == "__main__":
     import sys
@@ -206,7 +219,7 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
         con.commit()
         print md_str
         print rows

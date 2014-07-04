@@ -8,6 +8,7 @@ logo_url: http://test.com
 version: 5.0.1
 release_date: 22-04-1988
 license: BSD
+interfaced_with: [wannier90, BerkeleyGW]
 ~~##~~
 QUANTUM Espresso is a plane wave package:
     - Test
