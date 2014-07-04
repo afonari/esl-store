@@ -2,11 +2,12 @@
 
 VERSION = '0.1'
 ESL_FILE = '_esl.list'
-DATE_FORMATTER_STRING = "%d-%m-%y"
+DATE_FORMATTER_STRING = "%d-%m-%Y"
 
 ##########################
 def parse_esl_file(esl_fh):
     import markdown
+    import yaml
     #
     yaml_str = ''
     yaml_done = False
@@ -28,33 +29,59 @@ def parse_esl_file(esl_fh):
             markdown_str += line
     #
     md = markdown.markdown(markdown_str, safe_mode='remove')
-    return yaml_str, md
+    #
+    try:
+        yaml_obj = yaml.load(yaml_str)
+    except yaml.YAMLError, exc:
+        print 'WARNING: YAML.load error %s!' % str(exc)
+        return 1, 0, 0
+    #
+    return 0, yaml_obj, md
 #
-def check_release_date(yaml_obj, release_date_key, date_formatter_str, ret):
+def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     import datetime
     #
     if not release_date_key in yaml_obj.keys():
         print "WARNING: %s is non-existent!" % release_date_key
-        return 1
+        return 1, 0
     #
     date_str = yaml_obj[release_date_key]
     try:
-        ret = datetime.datetime.strptime(date_str, date_formatter_str)
+        ret = datetime.datetime.strptime(date_str, date_formatter_str).date()
     except ValueError:
         print "WARNING: Couldn't parse the date in date_str: %s!" % date_str
-        return 1
+        return 1, 0
     #
-    return 0
+    return 0, ret
+#
+def check_url(url_str):
+    import httplib
+    import urllib2
     #
+    request = urllib2.Request(url_str)
+    #
+    try:
+        url_fh = urllib2.urlopen(request)
+    except urllib2.HTTPError, e:
+        print 'WARNING: HTTPError = %s!' % str(e.code)
+        return 1, 0
+    except urllib2.URLError, e:
+        print 'WARNING: URLError = %s!' % str(e.reason)
+        return 1, 0
+    except httplib.HTTPException, e:
+        print 'WARNING: HTTPException!'
+        return 1, 0
+    except Exception:
+        import traceback
+        print 'generic exception: %s, next entry!' % traceback.format_exc()
+        return
+    #
+    return 0, url_fh
+#
 ##########################
 if __name__ == "__main__":
     import sys
 #    import re
-    import datetime
-    import time
-    import yaml
-    import httplib
-    import urllib2
     import sqlite3
     #
     print "Welcome to getter.py v. %s !\n" % VERSION
@@ -76,50 +103,41 @@ if __name__ == "__main__":
         if len(tmp) < 2:
             sys.exit("Found incomplete line: '%s', exiting...\n" % line)
         #
-        print "Found entry: %s: %s" % (tmp[0], tmp[1])
-        #
-        print "Getting URL %s " % tmp[1]
-        request = urllib2.Request(tmp[1])
-        #
-        try: 
-            esl_fh = urllib2.urlopen(request)
-        except urllib2.HTTPError, e:
-            print 'HTTPError = %s, next entry!' % str(e.code)
-            continue
-        except urllib2.URLError, e:
-            print 'URLError = %s, next entry!' % str(e.reason)
-            continue
-        except httplib.HTTPException, e:
-            print 'HTTPException, next entry!'
-            continue
-        except Exception:
-            import traceback
-            print 'generic exception: %s, next entry!' % traceback.format_exc()
+        if len(tmp[0]) == 0:
+            print "WARNING: title empty, next entry!"
             continue
         #
-        print "Parsing..."
-        yaml_str, md_str = parse_esl_file(esl_fh)
-        #
-        try:
-            yaml_obj = yaml.load(yaml_str)
-        except yaml.YAMLError, exc:
-            print 'YAML.load error %s, next entry!' % str(exc)
+        if len(tmp[1]) == 0:
+            print "WARNING: URL empty, next entry!"
             continue
         #
-        print yaml_obj
-        if not 'title' in yaml_obj.keys() or len(yaml_obj['title']) == 0:
-            print "title empty, next entry!"
-            continue
-        #
-        cur.execute( 'SELECT * FROM products WHERE title=?', (yaml_obj['title'],) )
+        title = tmp[0]
+        cur.execute( 'SELECT * FROM products WHERE title=?', (title,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
-            print 'No product with such entry: %s, next entry!' % yaml_obj['title']
+            print 'WARNING: No product with the title: %s found in the DB, next entry!' % title
+            continue
+        #
+        print "Getting URL %s " % tmp[1]
+        #
+        ierr, esl_fh = check_url(tmp[1])
+        if ierr == 1:
+            print "Next entry!"
+        #
+        print "Parsing..."
+        ierr, yaml_obj, md_str = parse_esl_file(esl_fh)
+        #
+        print yaml_obj
+        if not 'title' in yaml_obj.keys() or yaml_obj['title'] != title:
+            print "WARNING title nonexistent or not the same as in ESLs file!"
             continue
         #
         #   Checking other entries
         #
+        ierr, homepage_fh = check_url(tmp[1])
+        if ierr == 1:
+            print "Next entry!"
         if not 'homepage' in yaml_obj.keys() or len(yaml_obj['homepage']) == 0:
             print "homepage empty, next entry!"
             continue
@@ -136,8 +154,8 @@ if __name__ == "__main__":
             print "version empty, next entry!"
             continue
         #
-        release_date = 0
-        if check_release_date(yaml_obj, 'release_date', DATE_FORMATTER_STRING, release_date) == 1:
+        ierr, release_date = check_release_date(yaml_obj, 'release_date', DATE_FORMATTER_STRING)
+        if ierr == 1:
             print "Next entry!"
             continue
         #
@@ -148,8 +166,8 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['latest_download'], yaml_obj['version'], yaml_obj['release_date'], yaml_obj['license'], md_str, yaml_obj['title']))
-        cur.commit()
+        cur.execute('UPDATE products SET homepage = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (yaml_obj['homepage'], yaml_obj['version'], release_date, yaml_obj['license'], md_str, yaml_obj['title']))
+        con.commit()
         print md_str
         print rows
 
