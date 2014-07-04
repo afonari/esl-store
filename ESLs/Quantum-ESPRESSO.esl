@@ -11,7 +11,10 @@ license: BSD
 interfaced_with: [wannier90, BerkeleyGW]
 tags: ['Plane Waves', 'Density Functional Theory', 'Ab Initio', 'Molecular Dynamics', 'Package']
 ~~##~~
-QUANTUM Espresso is a plane wave package:
-    - Test
-    - Test
-    - Test
+Quantum-ESPRESSO is an integrated suite of Open-Source computer codes for electronic-structure calculations and materials modeling at the nanoscale. It is based on density-functional theory, plane waves, and pseudopotentials.
+
+**Changelog**:
+
+ * Test
+ * Test
+
