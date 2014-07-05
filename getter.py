@@ -3,24 +3,29 @@
 VERSION = '0.1'
 ESL_FILE = '_esl.list'
 DATE_FORMATTER_STRING = "%d-%m-%Y"
+BLEACH_ALLOWED_TAGS = ['p','em','strong','ol','ul','li']
 
 ##########################
 def parse_esl_file(esl_fh):
     import markdown
     import yaml
+    import re
+    import bleach
     #
     yaml_str = ''
     yaml_done = False
     #
     markdown_str = ''
     #
+    p = re.compile("^\s*~~##~~\s*$")
+    #
     while True:
         line = esl_fh.readline()
         if not line:
             break
         #
-        print line
-        if "~~##~~" in line:
+        # print line
+        if p.match(line):
             yaml_done = True
             continue
         #
@@ -29,13 +34,18 @@ def parse_esl_file(esl_fh):
         else:
             markdown_str += line
     #
-    md = markdown.markdown(markdown_str, safe_mode='remove')
+    md = bleach.clean( markdown.markdown(markdown_str, safe_mode='remove'), tags=BLEACH_ALLOWED_TAGS, strip=True )
     #
-    print yaml_str
+    # print md
+    # print yaml_str
     try:
         yaml_obj = yaml.load(yaml_str)
     except yaml.YAMLError, exc:
         print 'WARNING: YAML.load error %s!' % str(exc)
+        return 1, 0, 0
+    #
+    if yaml_obj is None:
+        print 'WARNING: yaml_obj is None!'
         return 1, 0, 0
     #
     return 0, yaml_obj, md
@@ -56,32 +66,31 @@ def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     #
     return 0, ret
 #
-def check_url(url, download=False, local_name='', keep_fh=False):
+def check_url(url, read=False):
     from urllib2 import urlopen, URLError, HTTPError
     import os
+    #from io import BytesIO
+    from StringIO import StringIO
+    #
+    file_io = None
     #
     try:
         f = urlopen(url)
         #
         # Open our local file for writing
-        if download == True:
-            with open(local_name, "wb") as local_file:
-                local_file.write(f.read())
+        if read == True:
+            file_io = StringIO(f.read())
     #
     #handle errors
     except HTTPError, e:
         print "WARNING: HTTP Error:", e.code, url
-        if keep_fh: return 1, 0
-        else: return 1
+        return 1, 0
     except URLError, e:
         print "WARNING: URL Error:", e.reason, url
-        if keep_fh: return 1, 0
-        else: return 1
+        return 1, 0
     #
-    if keep_fh: return 0, f
-    else: return 0
+    return 0, file_io
 #
-
 def check_homepage(yaml_obj, homepage_key):
     #
     if not homepage_key in yaml_obj.keys():
@@ -89,7 +98,7 @@ def check_homepage(yaml_obj, homepage_key):
         return 1, 0
     #
     homepage_url = yaml_obj[homepage_key]
-    ierr = check_url(homepage_url)
+    ierr, dummy = check_url(homepage_url)
     if ierr == 1:
         return 1, 0
     #
@@ -110,7 +119,7 @@ def check_latest_download(yaml_obj, latest_download_key):
         print "WARNING: latest_download title (1st index) is empty!"
         return 1, 0
     #
-    ierr = check_url(latest_download[1])
+    ierr, dummy = check_url(latest_download[1])
     if ierr == 1:
         return 1, 0
     #
@@ -195,20 +204,22 @@ def check_license(yaml_obj, license_key):
     else:
         return 0, yaml_obj[license_key]
 #
-def get_image_size(fname):
+def get_image_size(fhandle):
     import struct
     import imghdr
     #
-    fhandle = open(fname, 'rb')
+    #fhandle = open(fname, 'rb')
     head = fhandle.read(24)
     if len(head) != 24:
         return 1, 0, 0, ''
-    if imghdr.what(fname) == 'png':
+    #
+    img_type = imghdr.what(None, fhandle.getvalue())
+    if img_type == 'png':
         check = struct.unpack('>i', head[4:8])[0]
         if check != 0x0d0a1a0a:
             return 1, 0, 0, ''
         width, height = struct.unpack('>ii', head[16:24])
-    elif imghdr.what(fname) == 'jpeg':
+    elif img_type == 'jpeg':
         try:
             fhandle.seek(0) # Read 0xff next
             size = 2
@@ -228,7 +239,7 @@ def get_image_size(fname):
     else:
         return 1, 0, 0, ''
     fhandle.close()
-    return 0, width, height, imghdr.what(fname)
+    return 0, width, height, img_type
 #
 def check_logo(yaml_obj, logo_key, path_to_save):
     import os
@@ -238,14 +249,15 @@ def check_logo(yaml_obj, logo_key, path_to_save):
         return 1, 0
     #
     logo_url = yaml_obj[logo_key]
-    ierr, logo_fh = check_url(logo_url, keep_fh=True)
+    ierr, logo_fh = check_url(logo_url, read=True)
     if ierr == 1:
         return 1
     #
-    with open(path_to_save, "wb") as local_file:
-        local_file.write(logo_fh.read())
+    logo_fh.seek(0)
+    #with open(path_to_save, "wb") as local_file:
+    #    local_file.write(logo_fh.read())
     #
-    ierr, w, h, file_type = get_image_size(path_to_save)
+    ierr, w, h, file_type = get_image_size(logo_fh)
     #
     if ierr == 1:
         print "WARNING: Logo (%s) was not recognized to be of 'png' or 'jpeg' type" % logo_url
@@ -259,7 +271,7 @@ def check_logo(yaml_obj, logo_key, path_to_save):
         print "WARNING: Logo is too large (%f x %f) should be 200px X 100px max!" % (w, h)
         return 1
     #
-    os.rename(path_to_save, path_to_save+'.'+file_type)
+    #os.rename(path_to_save, path_to_save+'.'+file_type)
     return 0
     #
 ##########################
@@ -296,25 +308,30 @@ if __name__ == "__main__":
             continue
         #
         title = tmp[0]
-        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (title,) )
+        cur.execute( 'SELECT rowid, title FROM products WHERE title=?', (title,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
             print 'WARNING: No product with the title: %s found in the DB, next entry!' % title
             continue
         #
+        title_id = rows[0][0]
+        #
         print "Getting data for %s product from URL %s " % (title, tmp[1])
         #
-        ierr, esl_fh = check_url(tmp[1], keep_fh=True)
+        ierr, esl_fh = check_url(tmp[1], read=True)
         if ierr == 1:
             print "Next entry!"
             continue
         #
-        print esl_fh
+        # print esl_fh
         print "Parsing YAML and Markdown..."
+        esl_fh.seek(0)
         ierr, yaml_obj, md_str = parse_esl_file(esl_fh)
         #
-        print yaml_obj
+        # print yaml_obj
+        #
+        # TODO check better for the empty keys and stuff!
         #
         if ('title' not in yaml_obj.keys()) or (yaml_obj['title'] != title):
             print "WARNING: title nonexistent or not the same as in ESLs file, next entry!"
@@ -351,7 +368,7 @@ if __name__ == "__main__":
 
         check_tags(yaml_obj, 'tags', cur, title)
         #
-        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title)
+        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title_id)
         if ierr == 1:
             print "Next entry!"
             continue
@@ -361,8 +378,8 @@ if __name__ == "__main__":
         cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ? COLLATE NOCASE', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
         con.commit()
         #
-        print md_str
-        print rows
+        #print md_str
+        #print rows
         #
 
 

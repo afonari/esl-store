@@ -11,4 +11,8 @@
 </head>
 <body>
 
-<h2 id="toc_0">ESL Store</h2>
+<div class="esl_header">
+    <h2 id="toc_0">ESL Store</h2>
+    <h3> &mdash; where the <u>E</u>lectronic <u>S</u>tructure <u>L</u>ibrary codes live!</h3>
+</div>
+<div class="tags">

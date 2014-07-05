@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 VERSION = '0.1'
-TAG_DIV = '<div class="__CLASS__" __HOVER__><a href="__TAG_NAME__.html">__TAG_NAME_SPACE__</a></div>'
-INTERMEDIATE_DIV = '<br class="clearBoth" />'
+TAG_DIV = '<a class="__CLASS__" href="__TAG_NAME__.html" __HOVER__>__TAG_NAME_SPACE__</a>'
+INTERMEDIATE_DIV = '<br class="clearBoth" /><hr />'
 PRODUCT_DIV = '<div class="product"><a href="__PRODUCT_NAME__.html">__PRODUCT_NAME_SPACE__</a></div>'
 
 if __name__ == "__main__":
