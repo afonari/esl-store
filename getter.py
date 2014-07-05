@@ -238,7 +238,7 @@ def get_image_size(fhandle):
             return 1, 0, 0, ''
     else:
         return 1, 0, 0, ''
-    fhandle.close()
+    #
     return 0, width, height, img_type
 #
 def check_logo(yaml_obj, logo_key, path_to_save):
@@ -271,7 +271,10 @@ def check_logo(yaml_obj, logo_key, path_to_save):
         print "WARNING: Logo is too large (%f x %f) should be 200px X 100px max!" % (w, h)
         return 1
     #
-    #os.rename(path_to_save, path_to_save+'.'+file_type)
+    logo_fh.seek(0)
+    with open(path_to_save, "wb") as local_file:
+        local_file.write(logo_fh.read())
+    #
     return 0
     #
 ##########################
@@ -368,7 +371,7 @@ if __name__ == "__main__":
 
         check_tags(yaml_obj, 'tags', cur, title)
         #
-        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs/'+title_id)
+        ierr = check_logo(yaml_obj, 'logo_url', 'ESLs-logos/'+str(title_id))
         if ierr == 1:
             print "Next entry!"
             continue
@@ -377,6 +380,8 @@ if __name__ == "__main__":
         #
         cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ? COLLATE NOCASE', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
         con.commit()
+        print "Committed !!"
+        print "Next entry!\n"
         #
         #print md_str
         #print rows
