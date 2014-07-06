@@ -81,6 +81,7 @@ def check_url(url, read=False, check_update=None):
         f = urlopen(url)
         #
         if check_update is not None:
+            print f.info()
             time_ = time.mktime(time.strptime(f.info()['Last-Modified'], '%a, %d %b %Y %H:%M:%S GMT'))
             if time_ == check_update:
                 f.close()
