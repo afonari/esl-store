@@ -378,7 +378,7 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ? COLLATE NOCASE', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
         con.commit()
         print "Committed !!"
         print "Next entry!\n"

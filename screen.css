@@ -1,11 +1,16 @@
+a:visited{color:#2A5D84;text-decoration:underline;}
+a:link{color:#2A5D84;text-decoration:underline;}
+a:active{color:#2A5D84;text-decoration:underline;}
+a:hover{color:#2A5D84;text-decoration:underline;}
+
 a.tag{
 /*    float:left;*/
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
     border: 1px solid;
-    margin:2px;
-    padding:0px 3px 0px 3px;
+    margin:4px;
+    padding:2px 3px 2px 3px;
     display:inline-block;
     color:#2A5D84;
 }
@@ -26,8 +31,8 @@ a.tag_current{
     -webkit-border-radius: 5px;
     border-radius: 5px;
     border: 1px solid;
-    margin:2px;
-    padding:0px 3px 0px 3px;
+    margin:4px;
+    padding:2px 3px 2px 3px;
     color:#FFF;
     background-color:#2A5D84;
     display: inline-block;
@@ -66,14 +71,22 @@ a.product_icon:link{color:#2A5D84;text-decoration:none;}
 a.product_icon:active{color:#2A5D84;text-decoration:none;}
 
 a.product_icon:hover{
-    border-color:#0f2230;text-decoration:none;
+    border-color:#0040FF; color: #0040FF; text-decoration:none;
 }
 
 div.esl_header{
     text-align: center;
 }
 
+h2.esl_header{
+    margin-bottom: -3px;
+}
+
 hr {
     border:0;
     border-top:1px solid #eee;
+}
+
+div.footer{
+    text-align: center;
 }
