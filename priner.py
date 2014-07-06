@@ -2,10 +2,15 @@
 
 VERSION = '0.1'
 TAG_DIV = '<a class="__CLASS__" href="__TAG_NAME__.html">__TAG_NAME_SPACE__</a>'
-INTERMEDIATE_DIV = '</div><hr />'
+# INTERMEDIATE_DIV = '</div><hr />'
 PRODUCT_LOGO_DIV = '<a class="product_icon" href="__PRODUCT_NAME__.html"><div style="width: 200px;height: 100px;"><img src="__PRODUCT_LOGO__" /></div>__PRODUCT_NAME_SPACE__</a>'
 LOGOS_FOLDER = 'ESLs-logos/'
-PRODUCT_DATA_DIV = '<h3>__PRODUCT_NAME__</h3><div style="width: 200px;height: 100px;display: inline;"><img src="__PRODUCT_LOGO__" /></div>__PRODUCT_DESC__<br />'
+PRODUCT_DATA_DIV =  '<h3>__PRODUCT_NAME__</h3><div style="width: 200px;height: 100px;display: inline;"><img src="__PRODUCT_LOGO__" /></div>__PRODUCT_DESC__'
+PRODUCT_DATA_DIV += '<div class="product_misc_data"><strong>Homepage:</strong> <a href="__PRODUCT_HOMEPAGE__">__PRODUCT_HOMEPAGE__</a><br />'
+PRODUCT_DATA_DIV += '<strong>License:</strong> __PRODUCT_LICENSE__<br />'
+PRODUCT_DATA_DIV += '<strong>Version:</strong> __PRODUCT_VERSION__<br />'
+PRODUCT_DATA_DIV += '<strong>Release date:</strong> __PRODUCT_DATE__<br />'
+PRODUCT_DATA_DIV += '<strong>Download the latest version:</strong> <a href="__PRODUCT_DOWNLOAD_URL__">__PRODUCT_DOWNLOAD__</a></div>'
 
 def generate_tags(tags_fetch_all, tag_current=''):
     ret_str = '<div class="tags">'
@@ -30,14 +35,25 @@ def generate_tags(tags_fetch_all, tag_current=''):
 def generate_product_data(product):
     import re
     #
-    print product
+    # print product
     ret_str = '<div class="product_data">'
     #
-    title, url, latest_download, latest_download_url, version, release_date, license, description, cecam_wiki = product
-    ret_str += re.sub('__PRODUCT_NAME__', title, PRODUCT_DATA_DIV)
-    #ret_str += re.sub('__PRODUCT_NAME__', title, PRODUCT_DATA_DIV)
+    rowid, title, url, latest_download, latest_download_url, version, release_date, license, desc, cecam_wiki = product
+    title_ = re.sub(' ', '_', title)
     #
-    return
+    product_div = re.sub('__PRODUCT_NAME__', str(title), PRODUCT_DATA_DIV)
+    product_div = re.sub('__PRODUCT_LOGO__', LOGOS_FOLDER+str(rowid), product_div)
+    product_div = re.sub('__PRODUCT_HOMEPAGE__', str(url), product_div)
+    product_div = re.sub('__PRODUCT_LICENSE__', str(license), product_div)
+    product_div = re.sub('__PRODUCT_VERSION__', str(version), product_div)
+    product_div = re.sub('__PRODUCT_DATE__', str(release_date), product_div)
+    product_div = re.sub('__PRODUCT_DOWNLOAD_URL__', str(latest_download_url), product_div)
+    product_div = re.sub('__PRODUCT_DOWNLOAD__', str(latest_download), product_div)
+    product_div = re.sub('__PRODUCT_DESC__', str(desc), product_div)
+    ret_str += product_div
+    #
+    ret_str += '</div>'
+    return ret_str, title_
 
 if __name__ == "__main__":
     import sys
@@ -73,7 +89,8 @@ if __name__ == "__main__":
         f.write(generate_tags(rows, tag_current=tag))
         #
         f.write("\n")
-        f.write(INTERMEDIATE_DIV)
+        f.write("<hr />")
+        f.write("\n")
         #
         # PRODUCTS on the TAGS pages
         #
@@ -96,13 +113,10 @@ if __name__ == "__main__":
             div_product = re.sub('__PRODUCT_NAME_SPACE__', product, div_product)
             div_product = re.sub('__PRODUCT_LOGO__', LOGOS_FOLDER+str(rowid), div_product)
             f.write(div_product)
-            #f.write("\n")
         #
-        #f.write('<br style="clear:both"/>')
         f.write('</div>')
+        f.write("\n")
         f.write(bottom)
-        #print products
-        #sys.exit(0)
         f.close()
 #####################################
     print "Done with the 'TAGS' pages, continuing with 'PRODUCTS' pages..."
@@ -118,18 +132,22 @@ if __name__ == "__main__":
     #
     # print tags_str
     #
-    cur.execute( 'SELECT * FROM products')
+    cur.execute( 'SELECT rowid, * FROM products')
     rows = cur.fetchall()
     #
     for row in rows:
-        generate_product_data(row)
-        #product = row[0]
-        #product_ = re.sub(' ', '_', tag)
+        product_div, title_ = generate_product_data(row)
         #
-        f = open(product_+'.html', 'w')
+        f = open(title_+'.html', 'w')
         f.write(header)
+        f.write(tags_str)
         f.write("\n")
-        #f.write()
+        f.write("<hr />")
+        f.write("\n")
+        f.write(product_div)
+        f.write("\n")
+        f.write(bottom)
+        f.close()
 
 
 

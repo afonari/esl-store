@@ -136,6 +136,8 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
         print "WARNING: %s is not a list!" % interfaced_with_key
         return 1
     #
+    cur.execute('DELETE FROM interface WHERE product_title = ?', (title,))
+    #
     for val in interfaced_with:
         if val is None or len(val) == 0:
             continue
@@ -144,17 +146,15 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
             print 'WARNING: Cannot interface product with itself!'
             continue
         #
-        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (val,) )
+        cur.execute( 'SELECT title FROM products WHERE title=? COLLATE NOCASE', (val,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
             print 'WARNING: No product with the title: %s found in the DB for interfacing!' % val
             continue
         #
-        cur.execute('SELECT rowid FROM interface WHERE product = ? and product1 = ?', (title, val))
-        rows = cur.fetchall()
-        if len(rows) == 0:
-            cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
+        val = rows[0][0] # fix the case for letters in the title
+        cur.execute('INSERT INTO interface VALUES(?,?)', (title, val))
     #
     return 0
 #
