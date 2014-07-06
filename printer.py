@@ -47,8 +47,12 @@ def generate_product_data(product, cur):
     #
     # 'Interfaced with' goes 1st
     cur.execute( 'SELECT product1 FROM interface WHERE product = ?', (title,) )
-    interface_str = ''
     rows = cur.fetchall()
+    #
+    if len(rows) != 0:
+        interface_str = ''
+    else:
+        interface_str = 'Nothing'
     #
     for i in range(len(rows)):
         row_ = re.sub(' ', '_', rows[i][0])
