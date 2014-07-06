@@ -52,6 +52,7 @@ def parse_esl_file(esl_fh):
 #
 def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     import datetime
+    import time
     #
     if not release_date_key in yaml_obj.keys():
         print "WARNING: %s is non-existent!" % release_date_key
@@ -59,7 +60,7 @@ def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     #
     date_str = yaml_obj[release_date_key]
     try:
-        ret = datetime.datetime.strptime(date_str, date_formatter_str)
+        ret = time.mktime(datetime.datetime.strptime(date_str, date_formatter_str).timetuple())
     except ValueError:
         print "WARNING: Couldn't parse the date in date_str: %s!" % date_str
         return 1, 0
@@ -285,7 +286,7 @@ if __name__ == "__main__":
     #
     print "Welcome to getter.py v. %s !\n" % VERSION
     #
-    con = sqlite3.connect('esl-store.sqlite')
+    con = sqlite3.connect('esl-store.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
     cur = con.cursor()
     #
     try:

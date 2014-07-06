@@ -38,6 +38,7 @@ def generate_tags(tags_fetch_all, tag_current=''):
 #
 def generate_product_data(product, cur):
     import re
+    import datetime
     #
     # print product
     ret_str = '<div class="product_data">'
@@ -63,13 +64,15 @@ def generate_product_data(product, cur):
         if i+1 is not len(rows): # if the element is last, we dont need comma
             interface_str += ", "
     #
+    release_date = datetime.datetime.fromtimestamp(release_date).strftime('%d-%b-%Y')
+
     product_div = re.sub('__PRODUCT_NAME__', str(title), PRODUCT_DATA_DIV)
     product_div = re.sub('__PRODUCT_LOGO__', LOGOS_FOLDER+str(rowid), product_div)
     product_div = re.sub('__PRODUCT_INTERFACED__', interface_str, product_div)
     product_div = re.sub('__PRODUCT_HOMEPAGE__', str(url), product_div)
     product_div = re.sub('__PRODUCT_LICENSE__', str(license), product_div)
     product_div = re.sub('__PRODUCT_VERSION__', str(version), product_div)
-    product_div = re.sub('__PRODUCT_DATE__', str(release_date), product_div)
+    product_div = re.sub('__PRODUCT_DATE__', release_date, product_div)
     product_div = re.sub('__PRODUCT_DOWNLOAD_URL__', str(latest_download_url), product_div)
     product_div = re.sub('__PRODUCT_DOWNLOAD__', str(latest_download), product_div)
     product_div = re.sub('__PRODUCT_DESC__', str(desc), product_div)
@@ -119,7 +122,7 @@ if __name__ == "__main__":
         #
         f.write('<div class="product_holder">')
         if row[0] == 'All':
-            cur.execute( 'SELECT DISTINCT product_title FROM products_tags' )
+            cur.execute( 'SELECT title FROM products' )
         else:
             cur.execute( 'SELECT product_title FROM products_tags WHERE tag = ?', (row[0],) )
         #
