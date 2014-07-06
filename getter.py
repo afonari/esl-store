@@ -67,30 +67,40 @@ def check_release_date(yaml_obj, release_date_key, date_formatter_str):
     #
     return 0, ret
 #
-def check_url(url, read=False):
+def check_url(url, read=False, check_update=None):
     from urllib2 import urlopen, URLError, HTTPError
     import os
+    import time
     #from io import BytesIO
     from StringIO import StringIO
     #
     file_io = None
+    time_   = None
     #
     try:
         f = urlopen(url)
         #
-        # Open our local file for writing
+        if check_update is not None:
+            time_ = time.mktime(time.strptime(f.info()['Last-Modified'], '%a, %d %b %Y %H:%M:%S GMT'))
+            if time_ == check_update:
+                f.close()
+                print "INFO: File has not been updated, skipping..."
+                return 1, None
+        #
+        # Open local stream
         if read == True:
             file_io = StringIO(f.read())
     #
     #handle errors
     except HTTPError, e:
         print "WARNING: HTTP Error:", e.code, url
-        return 1, 0
+        return 1, None
     except URLError, e:
         print "WARNING: URL Error:", e.reason, url
-        return 1, 0
+        return 1, None
     #
-    return 0, file_io
+    f.close()
+    return 0, [file_io, time_]
 #
 def check_homepage(yaml_obj, homepage_key):
     #
@@ -250,7 +260,7 @@ def check_logo(yaml_obj, logo_key, path_to_save):
         return 1, 0
     #
     logo_url = yaml_obj[logo_key]
-    ierr, logo_fh = check_url(logo_url, read=True)
+    ierr, [logo_fh, logo_last_updated] = check_url(logo_url, read=True)
     if ierr == 1:
         return 1
     #
@@ -286,7 +296,7 @@ if __name__ == "__main__":
     #
     print "Welcome to getter.py v. %s !\n" % VERSION
     #
-    con = sqlite3.connect('esl-store.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
+    con = sqlite3.connect('esl-store.sqlite')
     cur = con.cursor()
     #
     try:
@@ -312,7 +322,7 @@ if __name__ == "__main__":
             continue
         #
         title = tmp[0]
-        cur.execute( 'SELECT rowid, title FROM products WHERE title=?', (title,) )
+        cur.execute( 'SELECT rowid, title, last_update FROM products WHERE title=?', (title,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
@@ -320,14 +330,16 @@ if __name__ == "__main__":
             continue
         #
         title_id = rows[0][0]
+        last_update = float(rows[0][2])
         #
         print "Getting data for %s product from URL %s " % (title, tmp[1])
         #
-        ierr, esl_fh = check_url(tmp[1], read=True)
+        ierr, esl_struct = check_url(tmp[1], read=True, check_update=last_update)
         if ierr == 1:
             print "Next entry!"
             continue
         #
+        [esl_fh, last_update] = esl_struct
         # print esl_fh
         print "Parsing YAML and Markdown..."
         esl_fh.seek(0)
@@ -379,7 +391,7 @@ if __name__ == "__main__":
         #
         # Ready to update!
         #
-        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ? WHERE title = ?', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, title))
+        cur.execute('UPDATE products SET homepage = ?, latest_download = ?, latest_download_url = ?, version = ?, release_date = ?, license = ?, description = ?, last_update = ? WHERE title = ?', (homepage_url, latest_download[0], latest_download[1], version, release_date, license, md_str, last_update, title))
         con.commit()
         print "Committed !!"
         print "Next entry!\n"
