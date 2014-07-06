@@ -195,9 +195,6 @@ def check_tags(yaml_obj, tags_key, cur, title):
             continue
         #
         tag_title = rows[0][0]
-        print tag_title
-        #cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
-        #rows = cur.fetchall()
         #
         cur.execute('INSERT INTO products_tags VALUES(?,?)', (title, tag_title))
     #
