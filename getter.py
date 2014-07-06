@@ -81,7 +81,7 @@ def check_url(url, read=False, check_update=None):
         f = urlopen(url)
         #
         if check_update is not None:
-            print f.info()
+            # print f.info()
             time_ = time.mktime(time.strptime(f.info()['Last-Modified'], '%a, %d %b %Y %H:%M:%S GMT'))
             if time_ == check_update:
                 f.close()
@@ -187,17 +187,19 @@ def check_tags(yaml_obj, tags_key, cur, title):
         if val is None or len(val) == 0:
             continue
         #
-        cur.execute( 'SELECT * FROM tags WHERE title=? COLLATE NOCASE', (val,) )
+        cur.execute( 'SELECT title FROM tags WHERE title=? COLLATE NOCASE', (val,) )
         rows = cur.fetchall()
         #
         if len(rows) == 0:
             print 'WARNING: No tag (%s) found in the "tags" table!' % val
             continue
         #
-        cur.execute( 'SELECT * FROM products WHERE title=? COLLATE NOCASE', (val,) )
-        rows = cur.fetchall()
+        tag_title = rows[0][0]
+        print tag_title
+        #cur.execute( 'SELECT * FROM products WHERE title=?', (val,) )
+        #rows = cur.fetchall()
         #
-        cur.execute('INSERT INTO products_tags VALUES(?,?)', (title, val))
+        cur.execute('INSERT INTO products_tags VALUES(?,?)', (title, tag_title))
     #
     return 0
 def check_version(yaml_obj, version_key):

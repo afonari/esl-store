@@ -43,7 +43,7 @@ def generate_product_data(product, cur):
     # print product
     ret_str = '<div class="product_data">'
     #
-    rowid, title, url, latest_download, latest_download_url, version, release_date, license, desc, cecam_wiki = product
+    rowid, title, url, latest_download, latest_download_url, version, release_date, license, desc, cecam_wiki, last_update = product
     title_ = re.sub(' ', '_', title)
     #
     # 'Interfaced with' goes 1st
