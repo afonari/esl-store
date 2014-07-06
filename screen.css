@@ -26,6 +26,10 @@ a.tag:hover{
 div.tags{
     text-align: center;
 }
+
+div.product_holder{
+    text-align: center;
+}
 a.tag_current{
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
