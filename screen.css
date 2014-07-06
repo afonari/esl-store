@@ -96,7 +96,8 @@ div.footer{
 }
 
 div.product_data{
-    margin: 0px 10% 0px 20%;
+    margin: 0px auto 0px 15%;
+    width: 43em;
     text-align: justify;
 }
 

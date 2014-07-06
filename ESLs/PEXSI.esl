@@ -1,0 +1,21 @@
+#
+#
+#
+title: PEXSI
+homepage: http://math.berkeley.edu/~linlin/pexsi
+latest_download: ['pexsi_v0.7.1.tar.gz', 'http://math.berkeley.edu/~linlin/pexsi/download/download.php?file=pexsi_v0.7.1.tar.gz']
+logo_url: 'http://alexandr-fonari.github.io/esl-store/ESLs/PEXSI.png'
+version: '0.7.1'
+release_date: '01-07-2014'
+license: Lawrence Berkeley National Lab modified BSD license
+interfaced_with: ['BigDFT']
+tags: ['Library', 'Solver', 'Sparse Matrix']
+~~##~~
+The Pole EXpansion and Selected Inversion method (*PEXSI*) is a fast method for evaluating certain selected elements of a matrix function and can be used for solving the KS-equation without explicit diagonalization. PEXSI is highly scalable on distributed memory parallel machines.
+
+**Changelog**:
+
+ * Test
+ * Test
+
+And then....

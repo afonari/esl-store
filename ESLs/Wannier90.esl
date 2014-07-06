@@ -4,9 +4,9 @@
 title: Wannier90
 homepage: http://wannier.org/
 latest_download: ['wannier90-2.0.0.tar.gz', 'http://www.wannier.org/code/wannier90-2.0.0.tar.gz']
-logo_url: 'http://afonari.com/esl-store/ESLs-logos/Wannier90_logo.jpg'
+logo_url: 'http://alexandr-fonari.github.io/esl-store/ESLs/Wannier90.logo'
 version: '2.0'
-release_date: '14-04-2011'
+release_date: '14-10-2013'
 license: GPL
 interfaced_with: ['quantum-espresso']
 tags: ['Wannier functions', 'Post-processing', 'Localized Orbitals', 'Package']
