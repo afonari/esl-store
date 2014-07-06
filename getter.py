@@ -136,7 +136,7 @@ def check_interfaced(yaml_obj, interfaced_with_key, cur, title):
         print "WARNING: %s is not a list!" % interfaced_with_key
         return 1
     #
-    cur.execute('DELETE FROM interface WHERE product_title = ?', (title,))
+    cur.execute('DELETE FROM interface WHERE product = ?', (title,))
     #
     for val in interfaced_with:
         if val is None or len(val) == 0:
