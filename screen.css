@@ -23,6 +23,26 @@ a.tag:hover{
     background-color: #eee;
 }
 
+a.tag_esl_supported{
+/*    float:left;*/
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid;
+    margin:4px;
+    padding:2px 3px 2px 3px;
+    display:inline-block;
+    color:#0040FF;
+}
+a.tag_esl_supported:visited{color:#0040FF;text-decoration:none;}
+a.tag_esl_supported:link{color:#0040FF;text-decoration:none;}
+a.tag_esl_supported:active{color:#0040FF;text-decoration:none;}
+
+a.tag_esl_supported:hover{
+    text-decoration:none;
+    background-color: #eee;
+}
+
 div.tags{
     text-align: center;
 }

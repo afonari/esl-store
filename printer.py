@@ -9,6 +9,7 @@ LOGOS_FOLDER = 'ESLs-logos/'
 PRODUCT_DATA_DIV =  '<h3>__PRODUCT_NAME__</h3><div style="width: 200px;height: 100px;display: inline;"><img src="__PRODUCT_LOGO__" /></div>__PRODUCT_DESC__'
 PRODUCT_DATA_DIV += '<div class="product_misc_data"><strong>Interfaced with:</strong> __PRODUCT_INTERFACED__<br />'
 PRODUCT_DATA_DIV += '<strong>Homepage:</strong> <a href="__PRODUCT_HOMEPAGE__">__PRODUCT_HOMEPAGE__</a><br />'
+PRODUCT_DATA_DIV += '__CECAM_WIKI_HOLDER__'
 PRODUCT_DATA_DIV += '<strong>License:</strong> __PRODUCT_LICENSE__<br />'
 PRODUCT_DATA_DIV += '<strong>Version:</strong> __PRODUCT_VERSION__<br />'
 PRODUCT_DATA_DIV += '<strong>Release date:</strong> __PRODUCT_DATE__<br />'
@@ -28,6 +29,8 @@ def generate_tags(tags_fetch_all, tag_current=''):
         #
         if tag == tag_current:
             div_tag = re.sub('__CLASS__', 'tag_current', div_tag)
+        elif tag == 'ESL-Supported':
+            div_tag = re.sub('__CLASS__', 'tag_esl_supported', div_tag)
         else:
             div_tag = re.sub('__CLASS__', 'tag', div_tag)
         #
@@ -43,7 +46,7 @@ def generate_product_data(product, cur):
     # print product
     ret_str = '<div class="product_data">'
     #
-    rowid, title, url, latest_download, latest_download_url, version, release_date, license, desc, cecam_wiki, last_update = product
+    rowid, title, url, latest_download, latest_download_url, version, release_date, license, desc, cecam_wiki_url, last_update = product
     title_ = re.sub(' ', '_', title)
     #
     # 'Interfaced with' goes 1st
@@ -70,6 +73,12 @@ def generate_product_data(product, cur):
     product_div = re.sub('__PRODUCT_LOGO__', LOGOS_FOLDER+str(rowid), product_div)
     product_div = re.sub('__PRODUCT_INTERFACED__', interface_str, product_div)
     product_div = re.sub('__PRODUCT_HOMEPAGE__', str(url), product_div)
+    #
+    if cecam_wiki_url is not None:
+        product_div = re.sub('__CECAM_WIKI_HOLDER__', '<strong>ESL wiki-page:</strong> <a href="%s">%s</a><br />' % (cecam_wiki_url, cecam_wiki_url), product_div)
+    else:
+        product_div = re.sub('__CECAM_WIKI_HOLDER__', '', product_div)
+    #
     product_div = re.sub('__PRODUCT_LICENSE__', str(license), product_div)
     product_div = re.sub('__PRODUCT_VERSION__', str(version), product_div)
     product_div = re.sub('__PRODUCT_DATE__', release_date, product_div)
@@ -104,6 +113,7 @@ if __name__ == "__main__":
     #
     # tag page generations
     rows.insert(0, (u'All',))
+    rows.insert(len(rows), (u'ESL-Supported',))
     print rows
     for row in rows:
         tag = row[0]
@@ -123,10 +133,13 @@ if __name__ == "__main__":
         f.write('<div class="product_holder">')
         if row[0] == 'All':
             cur.execute( 'SELECT title FROM products' )
+        elif row[0] == 'ESL-Supported':
+            cur.execute( 'SELECT title FROM products WHERE cecam_wiki_url != ?', ('',)  )
         else:
             cur.execute( 'SELECT product_title FROM products_tags WHERE tag = ?', (row[0],) )
         #
         products = cur.fetchall()
+        # print products
         #
         for product in products:
             cur.execute( 'SELECT rowid FROM products WHERE title = ?', (product[0],) )
@@ -154,6 +167,7 @@ if __name__ == "__main__":
     #
     # product page generations
     rows.insert(0, (u'All',))
+    rows.insert(len(rows), (u'ESL-Supported',))
     tags_str = generate_tags(rows)
     #
     # print tags_str
