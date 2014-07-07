@@ -13,5 +13,5 @@ tags: ['Density Functional Theory', 'Augmented Plane-Wave', 'Localized Orbitals'
 ~~##~~
 The program package **WIEN2k** allows to perform electronic structure calculations of solids using density functional theory (DFT). It is based on the full-potential (linearized) augmented plane-wave ((L)APW) + local orbitals (lo) method, one among the most accurate schemes for band structure calculations. WIEN2k is an all-electron scheme including relativistic effects and has many features. It has been licensed by more than 2000 user groups.
 
-*WIEN2k_13.1* was released on 25.June 2013. Version 13.1 is a very important update, fixing some bugs and introducing several new features. Upgrading is highly recommended.
+*WIEN2k_13.1* was released on 25 June 2013. Version 13.1 is a very important update, fixing some bugs and introducing several new features. Upgrading is highly recommended.
 
