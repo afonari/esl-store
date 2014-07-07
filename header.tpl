@@ -12,8 +12,8 @@
 <body>
 
 <div class="esl_header">
-    <h2 class="esl_header">ESL Store</h2>
-    <h3> &mdash; where the <u>E</u>lectronic <u>S</u>tructure <u>L</u>ibrary codes live!</h3>
+    <h2 class="esl_header">Electronic Structure Codes at &#936;<sub>k</sub></h2>
+    <!-- <h3> &mdash; where the <u>E</u>lectronic <u>S</u>tructure <u>C</u>ibrary live!</h3> -->
 </div>
 <br />
 

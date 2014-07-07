@@ -29,8 +29,8 @@ def generate_tags(tags_fetch_all, tag_current=''):
         #
         if tag == tag_current:
             div_tag = re.sub('__CLASS__', 'tag_current', div_tag)
-        elif tag == 'ESL-Supported':
-            div_tag = re.sub('__CLASS__', 'tag_esl_supported', div_tag)
+        #elif tag == 'ESL-Supported':
+        #    div_tag = re.sub('__CLASS__', 'tag_esl_supported', div_tag)
         else:
             div_tag = re.sub('__CLASS__', 'tag', div_tag)
         #
@@ -74,10 +74,10 @@ def generate_product_data(product, cur):
     product_div = re.sub('__PRODUCT_INTERFACED__', interface_str, product_div)
     product_div = re.sub('__PRODUCT_HOMEPAGE__', str(url), product_div)
     #
-    if cecam_wiki_url is not None:
-        product_div = re.sub('__CECAM_WIKI_HOLDER__', '<strong>ESL wiki-page:</strong> <a href="%s">%s</a><br />' % (cecam_wiki_url, cecam_wiki_url), product_div)
-    else:
-        product_div = re.sub('__CECAM_WIKI_HOLDER__', '', product_div)
+    #if cecam_wiki_url is not None:
+    #    product_div = re.sub('__CECAM_WIKI_HOLDER__', '<strong>ESL wiki-page:</strong> <a href="%s">%s</a><br />' % (cecam_wiki_url, cecam_wiki_url), product_div)
+    #else:
+    product_div = re.sub('__CECAM_WIKI_HOLDER__', '', product_div)
     #
     product_div = re.sub('__PRODUCT_LICENSE__', str(license), product_div)
     product_div = re.sub('__PRODUCT_VERSION__', str(version), product_div)
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     #
     # tag page generations
     rows.insert(0, (u'All',))
-    rows.insert(len(rows), (u'ESL-Supported',))
+    #rows.insert(len(rows), (u'ESL-Supported',))
     print rows
     for row in rows:
         tag = row[0]
@@ -133,8 +133,8 @@ if __name__ == "__main__":
         f.write('<div class="product_holder">')
         if row[0] == 'All':
             cur.execute( 'SELECT title FROM products' )
-        elif row[0] == 'ESL-Supported':
-            cur.execute( 'SELECT title FROM products WHERE cecam_wiki_url != ?', ('',)  )
+        #elif row[0] == 'ESL-Supported':
+        #    cur.execute( 'SELECT title FROM products WHERE cecam_wiki_url != ?', ('',)  )
         else:
             cur.execute( 'SELECT product_title FROM products_tags WHERE tag = ?', (row[0],) )
         #
